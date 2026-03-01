@@ -8,6 +8,33 @@
     <artifactId>GeyserSkinManager</artifactId>
     <packaging>pom</packaging>
     <version>1.8</version>
+    <repositories>
+        <repository>
+            <id>opencollab-repository-maven-snapshots</id>
+            <url>https://repo.opencollab.dev/maven-snapshots/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>opencollab-repository-maven-releases</id>
+            <url>https://repo.opencollab.dev/maven-releases/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <modules>
         <module>bungeecord</module>
         <module>common</module>

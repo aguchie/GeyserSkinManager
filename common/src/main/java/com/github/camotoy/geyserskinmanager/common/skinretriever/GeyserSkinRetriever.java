@@ -64,20 +64,75 @@ public class GeyserSkinRetriever implements BedrockSkinRetriever {
      * Taken from https://github.com/NukkitX/Nukkit/blob/master/src/main/java/cn/nukkit/network/protocol/LoginPacket.java
      */
     private RawSkin getImage(BedrockClientData clientData) {
-        byte[] image = Base64.getDecoder().decode(clientData.getSkinData());
-        if (image.length > (128 * 128 * 4) || clientData.isPersonaSkin()) {
-            //System.out.println("Persona skins are not yet supported, sorry!");
+        byte[] image = getSkinData(clientData);
+        if (image == null || image.length > (128 * 128 * 4) || clientData.isPersonaSkin()) {
             return null;
         }
-        String geometryName = new String(Base64.getDecoder().decode(clientData.getGeometryName()), StandardCharsets.UTF_8);
+        String geometryName = getGeometryName(clientData);
         boolean alex = isAlex(geometryName);
         return new RawSkin(
                 clientData.getSkinImageWidth(),
                 clientData.getSkinImageHeight(),
                 image, alex, geometryName,
-                new String(Base64.getDecoder().decode(clientData.getGeometryData()), StandardCharsets.UTF_8),
-                clientData.getSkinData()
+                getGeometryData(clientData),
+                getRawSkinData(clientData)
         );
+    }
+
+    private byte[] getSkinData(BedrockClientData clientData) {
+        try {
+            Object skinData = clientData.getClass().getMethod("getSkinData").invoke(clientData);
+            if (skinData instanceof String) {
+                return Base64.getDecoder().decode((String) skinData);
+            } else if (skinData instanceof byte[]) {
+                return (byte[]) skinData;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private String getRawSkinData(BedrockClientData clientData) {
+        try {
+            Object skinData = clientData.getClass().getMethod("getSkinData").invoke(clientData);
+            if (skinData instanceof String) {
+                return (String) skinData;
+            } else if (skinData instanceof byte[]) {
+                return Base64.getEncoder().encodeToString((byte[]) skinData);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private String getGeometryName(BedrockClientData clientData) {
+        try {
+            Object geometryName = clientData.getClass().getMethod("getGeometryName").invoke(clientData);
+            if (geometryName instanceof String) {
+                return new String(Base64.getDecoder().decode((String) geometryName), StandardCharsets.UTF_8);
+            } else if (geometryName instanceof byte[]) {
+                return new String((byte[]) geometryName, StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    private String getGeometryData(BedrockClientData clientData) {
+        try {
+            Object geometryData = clientData.getClass().getMethod("getGeometryData").invoke(clientData);
+            if (geometryData instanceof String) {
+                return new String(Base64.getDecoder().decode((String) geometryData), StandardCharsets.UTF_8);
+            } else if (geometryData instanceof byte[]) {
+                return new String((byte[]) geometryData, StandardCharsets.UTF_8);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
     private boolean isAlex(String geometryName) {
